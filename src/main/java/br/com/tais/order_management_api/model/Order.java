@@ -3,7 +3,6 @@ package br.com.tais.order_management_api.model;
 import br.com.tais.order_management_api.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.validator.constraints.Email;
-import org.springframework.boot.autoconfigure.amqp.RabbitConnectionDetails;
-import org.springframework.data.annotation.Id;
 
 @Entity
 @Table(name="customers")
@@ -18,8 +16,8 @@ import org.springframework.data.annotation.Id;
 @Builder
 public class Customer {
 
-    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
     Long id;
 
     @NotBlank
