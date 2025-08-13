@@ -3,8 +3,10 @@ package br.com.tais.order_management_api.repository;
 import br.com.tais.order_management_api.model.Customer;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CostumerRepository extends JpaRepository<Customer,Long> {
+import java.util.Optional;
 
-    Customer findByEmail(String email);
+public interface CustomerRepository extends JpaRepository<Customer,Long> {
+
+    Optional<Customer> findByEmail(String email);
 
 }

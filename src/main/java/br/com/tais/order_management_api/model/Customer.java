@@ -1,11 +1,15 @@
 package br.com.tais.order_management_api.model;
 
+import br.com.tais.order_management_api.model.enums.Roles;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.validator.constraints.Email;
+
+import javax.management.relation.Role;
+import java.util.Set;
 
 @Entity
 @Table(name="customers")
@@ -36,4 +40,13 @@ public class Customer {
     @Valid
     @Embedded
     private Address address;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String password;
+
+    @ElementCollection(targetClass = Role.class)
+    @CollectionTable(name = "user_roles")
+    @Enumerated(EnumType.STRING)
+    private Set<Roles> roles;
 }
