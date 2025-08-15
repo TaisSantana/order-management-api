@@ -3,6 +3,8 @@ package br.com.tais.order_management_api.service;
 import br.com.tais.order_management_api.model.Customer;
 import br.com.tais.order_management_api.model.dto.CustomerDTO;
 import br.com.tais.order_management_api.repository.CustomerRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
