@@ -1,6 +1,8 @@
 package br.com.tais.order_management_api.exception;
 
 import br.com.tais.order_management_api.model.ErrorResponse;
+import br.com.tais.order_management_api.model.enums.Roles;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
@@ -33,7 +36,31 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
-        return buildError(HttpStatus.BAD_REQUEST, "Malformed JSON request", "O corpo da requisição está inválido", request.getRequestURI());
+        logger.warn("Malformed JSON: {}", ex.getMessage());
+        Throwable cause = ex.getCause();
+
+        // Se for erro de enum inválido
+        if (cause instanceof InvalidFormatException invalidFormatException) {
+            Class<?> targetType = invalidFormatException.getTargetType();
+
+            if (targetType.isEnum() && targetType == Roles.class) {
+                String invalidValue = invalidFormatException.getValue().toString();
+                String allowedValues = Arrays.stream(Roles.values())
+                        .map(Roles::getAuthority)
+                        .collect(Collectors.joining(", "));
+
+                String message = "Role inválida: '" + invalidValue + "'. Opções válidas: " + allowedValues;
+
+                return buildError(
+                        HttpStatus.BAD_REQUEST,
+                        "Role inválida",
+                        message,
+                        request.getRequestURI()
+                );
+            }
+        }
+
+        return buildError(HttpStatus.BAD_REQUEST, "Malformed JSON request", ex.getMessage(), request.getRequestURI());
 
     }
 
@@ -50,6 +77,8 @@ public class GlobalExceptionHandler {
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .findFirst()
                 .orElse("Dados inválidos");
+
+        logger.warn("Validation error: {}", message);
         return buildError(HttpStatus.BAD_REQUEST, "Erro de validação", message, request.getRequestURI());
     }
 
@@ -67,6 +96,7 @@ public class GlobalExceptionHandler {
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
                 .findFirst()
                 .orElse("Parâmetros inválidos");
+        logger.warn("Bind error: {}", message);
         return buildError(HttpStatus.BAD_REQUEST, "Erro de parâmetros", message, request.getRequestURI());
     }
 
@@ -129,6 +159,7 @@ public class GlobalExceptionHandler {
                 .map(v -> v.getPropertyPath() + ": " + v.getMessage())
                 .collect(Collectors.joining("; "));
 
+        logger.warn("Constraint violation: {}", message);
         return buildError(
                 HttpStatus.BAD_REQUEST,
                 "Bad Request",
@@ -137,6 +168,21 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler({
+            EmailAlreadyExistsException.class,
+            UsernameAlreadyExistsException.class,
+            WeakPasswordException.class
+    })
+    public ResponseEntity<ErrorResponse> handleBusinessExceptions(RuntimeException ex, HttpServletRequest request) {
+        logger.warn("Business exception: {}", ex.getMessage());
+        return buildError(HttpStatus.CONFLICT, "Conflito de regra de negócio", ex.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCustomerNotFound(CustomerNotFoundException ex, HttpServletRequest request) {
+        logger.warn("Not found: {}", ex.getMessage());
+        return buildError(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage(), request.getRequestURI());
+    }
 
     private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String error, String message, String path) {
         ErrorResponse body = new ErrorResponse(

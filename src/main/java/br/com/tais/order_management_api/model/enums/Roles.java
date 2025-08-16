@@ -1,28 +1,28 @@
 package br.com.tais.order_management_api.model.enums;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import br.com.tais.order_management_api.exception.InvalidRoleException;
 
 import java.util.Arrays;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Getter
 @RequiredArgsConstructor
 public enum Roles {
-    CUSTOMER("ROLE_CUSTOMER", "Cliente comum"),
-    STAFF("ROLE_STAFF", "Funcionário"),
-    ADMIN("ROLE_ADMIN", "Administrador total"),
-    SALES("ROLE_SALES", "Equipe de vendas"),
-    INVENTORY_MANAGER("ROLE_INVENTORY_MGR", "Gestor de estoque"),
-    PREMIUM_CUSTOMER("ROLE_PREMIUM", "Cliente VIP"),
-    SUPPORT("ROLE_SUPPORT", "Atendimento"),
-    MARKETING("ROLE_MARKETING", "Equipe de marketing");
+    CUSTOMER("CUSTOMER", "Cliente comum"),
+    STAFF("STAFF", "Funcionário"),
+    ADMIN("ADMIN", "Administrador total"),
+    SALES("SALES", "Equipe de vendas"),
+    INVENTORY_MANAGER("INVENTORY_MANAGER", "Gestor de estoque"),
+    PREMIUM_CUSTOMER("PREMIUM_CUSTOMER", "Cliente VIP"),
+    SUPPORT("SUPPORT", "Atendimento"),
+    MARKETING("MARKETING", "Equipe de marketing");
 
     private final String authority;
     private final String description;
-    public static Optional<Roles> fromAuthority(String authority) {
-        return Arrays.stream(values())
-                .filter(role -> role.authority.equalsIgnoreCase(authority))
-                .findFirst();
-    }
+
+
 }

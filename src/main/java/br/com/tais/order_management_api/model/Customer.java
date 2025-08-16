@@ -9,6 +9,7 @@ import lombok.*;
 import org.hibernate.validator.constraints.Email;
 
 import javax.management.relation.Role;
+import java.io.Serializable;
 import java.util.Set;
 
 @Entity
@@ -18,7 +19,10 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Customer {
+public class Customer implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
@@ -48,6 +52,7 @@ public class Customer {
 
     @NotBlank
     @Column(nullable = false)
+    @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
     private String password;
 
     @ElementCollection(targetClass = Role.class)

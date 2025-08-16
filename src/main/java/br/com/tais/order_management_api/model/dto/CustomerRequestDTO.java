@@ -5,6 +5,7 @@ import br.com.tais.order_management_api.validation.OnCreate;
 import br.com.tais.order_management_api.validation.OnUpdate;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 import java.util.EnumSet;
@@ -20,6 +21,7 @@ public record CustomerRequestDTO(
         String username,
 
         @NotBlank(message = "A senha é obrigatória",groups = OnCreate.class)
+        @Size(min = 6, message = "A senha deve ter no mínimo 6 caracteres")
         String password,
 
         @NotBlank(message = "O email é obrigatório",groups = OnCreate.class)
@@ -29,6 +31,7 @@ public record CustomerRequestDTO(
         @Size(max = 15, message = "O telefone deve ter no máximo 15 caracteres",groups = {OnCreate.class, OnUpdate.class})
         String phone,
 
+        @NotEmpty(message = "A lista de roles não pode estar vazia",groups = OnCreate.class)
         Set<Roles> roles
 ) {
     public CustomerRequestDTO {
