@@ -4,7 +4,6 @@ import br.com.tais.order_management_api.model.Customer;
 import br.com.tais.order_management_api.model.dto.CustomerRequestDTO;
 import br.com.tais.order_management_api.model.dto.CustomerResponseDTO;
 import br.com.tais.order_management_api.repository.CustomerRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,17 +35,18 @@ public class CustomerService {
         return mapToResponseDTO(savedCustomer);
     }
 
-    public CustomerResponseDTO updateCustomer(Long id, CustomerRequestDTO customerRequestDTO) {
+    public CustomerResponseDTO partialUpdate(Long id, CustomerRequestDTO updates) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Cliente não encontrado com id: " + id));
 
-        customer.setName(customerRequestDTO.name());
-        customer.setPhone(customerRequestDTO.phone());
-        customer.setEmail(customerRequestDTO.email());
-        customer.setPassword(customerRequestDTO.password());
+        if (updates.name() != null) customer.setName(updates.name());
+        if (updates.username() != null) customer.setUsername(updates.username());
+        if (updates.email() != null) customer.setEmail(updates.email());
+        if (updates.phone() != null) customer.setPhone(updates.phone());
+        if (updates.password() != null) customer.setPassword(updates.password());
+        if (updates.roles() != null && !updates.roles().isEmpty()) customer.setRoles(updates.roles());
 
-        Customer updatedCustomer = customerRepository.save(customer);
-        return mapToResponseDTO(updatedCustomer);
+        return mapToResponseDTO(customerRepository.save(customer));
     }
 
     public CustomerResponseDTO getCustomerById(Long id) {
@@ -65,8 +65,10 @@ public class CustomerService {
         return new CustomerResponseDTO(
                 customer.getId(),
                 customer.getName(),
+                customer.getUsername(),
                 customer.getEmail(),
-                customer.getPhone()
+                customer.getPhone(),
+                customer.getRoles()
         );
     }
 

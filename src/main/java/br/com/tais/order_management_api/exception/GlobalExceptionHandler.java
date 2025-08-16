@@ -7,6 +7,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,14 +23,17 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Hidden
 public class GlobalExceptionHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpServletRequest request) {
-        return buildError(HttpStatus.BAD_REQUEST, "Malformed JSON request", ex.getMessage(), request.getRequestURI());
+        return buildError(HttpStatus.BAD_REQUEST, "Malformed JSON request", "O corpo da requisição está inválido", request.getRequestURI());
 
     }
 
@@ -50,7 +55,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpected(Exception ex, HttpServletRequest request) {
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno", "Ocorreu um erro inesperado", request.getRequestURI());
+        logger.error("Erro de persistência", ex);
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro interno", "Ocorreu um erro no Servidor", request.getRequestURI());
     }
 
     // Erro de validação em query params / path variables
@@ -86,7 +92,8 @@ public class GlobalExceptionHandler {
     // Erros de persistência genéricos
     @ExceptionHandler(PersistenceException.class)
     public ResponseEntity<ErrorResponse> handlePersistence(PersistenceException ex, HttpServletRequest request) {
-        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Erro de persistência", ex.getMessage(), request.getRequestURI());
+        logger.error("Erro de persistência", ex);
+        return buildError(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error", "Ocorreu um erro no servidor", request.getRequestURI());
     }
 
     @ExceptionHandler({DataIntegrityViolationException.class, EntityExistsException.class})
@@ -117,10 +124,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
 
+        String message = ex.getConstraintViolations()
+                .stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining("; "));
+
         return buildError(
                 HttpStatus.BAD_REQUEST,
                 "Bad Request",
-                ex.getMessage() ,
+                message ,
                 request.getRequestURI()
         );
     }

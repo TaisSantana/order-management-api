@@ -3,9 +3,12 @@ package br.com.tais.order_management_api.controller;
 import br.com.tais.order_management_api.model.dto.CustomerRequestDTO;
 import br.com.tais.order_management_api.model.dto.CustomerResponseDTO;
 import br.com.tais.order_management_api.service.CustomerService;
+import br.com.tais.order_management_api.validation.OnCreate;
+import br.com.tais.order_management_api.validation.OnUpdate;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -20,7 +23,7 @@ public class CustomerController {
 
     @PostMapping
     public ResponseEntity<CustomerResponseDTO> createCustomer(
-            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+            @Validated(OnCreate.class) @RequestBody CustomerRequestDTO customerRequestDTO) {
 
         CustomerResponseDTO savedCustomer = customerService.createCustomer(customerRequestDTO);
 
@@ -33,12 +36,12 @@ public class CustomerController {
         return ResponseEntity.created(location).body(savedCustomer);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CustomerResponseDTO> updateCustomer(
+    @PatchMapping("/{id}")
+    public ResponseEntity<CustomerResponseDTO> patchCustomer(
             @PathVariable Long id,
-            @Valid @RequestBody CustomerRequestDTO customerRequestDTO) {
+            @Validated(OnUpdate.class) @RequestBody CustomerRequestDTO updates) {
 
-        CustomerResponseDTO updatedCustomer = customerService.updateCustomer(id, customerRequestDTO);
+        CustomerResponseDTO updatedCustomer = customerService.partialUpdate(id, updates);
         return ResponseEntity.ok(updatedCustomer);
     }
 
