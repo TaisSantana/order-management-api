@@ -29,6 +29,11 @@ public class Customer {
     @Column(nullable = false, length = 100)
     String name;
 
+    @NotBlank
+    @Size(min = 1, max = 100, message = "O nome de usuário deve ter entre 1 e 100 caracteres")
+    @Column(nullable = false, length = 100)
+    String username;
+
     @Email(message = "O e-mail deve ser válido")
     @NotBlank(message = "O e-mail é obrigatório")
     @Column(unique = true, nullable = false)

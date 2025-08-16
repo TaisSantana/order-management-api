@@ -3,8 +3,10 @@ package br.com.tais.order_management_api.exception;
 import br.com.tais.order_management_api.model.ErrorResponse;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.NoSuchElementException;
 
 @ControllerAdvice
 @Hidden
@@ -92,6 +93,38 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleDataIntegrity(Exception ex, HttpServletRequest request) {
         return buildError(HttpStatus.CONFLICT, "Violação de integridade", ex.getMessage(), request.getRequestURI());
     }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex, HttpServletRequest request) {
+        return buildError(
+                HttpStatus.NOT_FOUND,
+                "Entidade não encontrada",
+                ex.getMessage() != null ? ex.getMessage() : "O recurso solicitado não foi encontrado",
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex, HttpServletRequest request) {
+        return buildError(
+                HttpStatus.NOT_FOUND,
+                "Não encontrado",
+                ex.getMessage() != null ? ex.getMessage() : "O recurso solicitado não foi encontrado",
+                request.getRequestURI()
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
+
+        return buildError(
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                ex.getMessage() ,
+                request.getRequestURI()
+        );
+    }
+
 
     private ResponseEntity<ErrorResponse> buildError(HttpStatus status, String error, String message, String path) {
         ErrorResponse body = new ErrorResponse(
