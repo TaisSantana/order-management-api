@@ -29,9 +29,11 @@ The project follows **Clean Code** and **SOLID** principles, with a layered arch
 - **PostgreSQL**
 - **Bean Validation**
 - **Lombok**
+- - **SLF4J** + **Logback** (for logging)
 - **JUnit 5** + **Mockito**
 - **Swagger / Springdoc OpenAPI**
 - **Docker** + **Docker Compose**
+- 
 
 ---
 
