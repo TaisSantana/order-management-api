@@ -66,6 +66,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
+        logger.warn("Resource not found: {}", ex.getMessage());
         return buildError(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage(), request.getRequestURI());
     }
 
@@ -102,6 +103,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ErrorResponse> handleMissingParam(MissingServletRequestParameterException ex, HttpServletRequest request) {
+        logger.warn("Missing parameter: {}", ex.getParameterName());
         return buildError(HttpStatus.BAD_REQUEST, "Parâmetro ausente", ex.getParameterName() + " é obrigatório", request.getRequestURI());
     }
 
@@ -110,12 +112,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
         String value = ex.getValue() != null ? ex.getValue().toString() : "null";
         String message = String.format("O valor '%s' não é válido para o parâmetro '%s'", value, ex.getName());
+        logger.warn("Type mismatch: {}", message);
         return buildError(HttpStatus.BAD_REQUEST, "Tipo de parâmetro inválido", message, request.getRequestURI());
     }
 
     // Método HTTP não suportado
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpServletRequest request) {
+        logger.warn("Method not supported: {}", ex.getMessage());
         return buildError(HttpStatus.METHOD_NOT_ALLOWED, "Método não suportado", ex.getMessage(), request.getRequestURI());
     }
 
@@ -128,11 +132,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({DataIntegrityViolationException.class, EntityExistsException.class})
     public ResponseEntity<ErrorResponse> handleDataIntegrity(Exception ex, HttpServletRequest request) {
+        logger.warn("Data integrity violation: {}", ex.getMessage());
         return buildError(HttpStatus.CONFLICT, "Violação de integridade", ex.getMessage(), request.getRequestURI());
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex, HttpServletRequest request) {
+        logger.warn("Entity not found: {}", ex.getMessage());
         return buildError(
                 HttpStatus.NOT_FOUND,
                 "Entidade não encontrada",
@@ -143,6 +149,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex, HttpServletRequest request) {
+        logger.warn("No such element: {}", ex.getMessage());
         return buildError(
                 HttpStatus.NOT_FOUND,
                 "Não encontrado",
@@ -180,7 +187,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleCustomerNotFound(CustomerNotFoundException ex, HttpServletRequest request) {
-        logger.warn("Not found: {}", ex.getMessage());
+        logger.warn("Customer not found: {}", ex.getMessage());
         return buildError(HttpStatus.NOT_FOUND, "Recurso não encontrado", ex.getMessage(), request.getRequestURI());
     }
 
