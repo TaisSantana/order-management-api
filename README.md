@@ -30,12 +30,7 @@ The project follows **Clean Code** and **SOLID** principles, with a layered arch
 - **Bean Validation**
 - **Lombok**
 - **SLF4J** + **Logback** (for logging)
-- **JUnit 5** + **Mockito**
+- **Testes automatizados com JUnit 5 e Mockito (unitários e integração)**
 - **Swagger / Springdoc OpenAPI**
 - **Docker** + **Docker Compose**
-  
-
----
-
-## 📂 Project Structure
 
